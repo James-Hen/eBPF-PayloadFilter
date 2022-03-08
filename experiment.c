@@ -14,14 +14,14 @@ void host_A() {
     */
     int server_fd;
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("socket failed");
+        perror("A: socket() failed");
         exit(EXIT_FAILURE);
     }
     
     int opt = 1;
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
                                                 &opt, sizeof(opt))) {
-        perror("setsockopt");
+        perror("A: setsockopt() failed");
         exit(EXIT_FAILURE);
     }
 
@@ -33,18 +33,18 @@ void host_A() {
     
     if (bind(server_fd, (struct sockaddr *)&address,
                                 sizeof(address))<0) {
-        perror("bind failed");
+        perror("A: bind() failed");
         exit(EXIT_FAILURE);
     }
     if (listen(server_fd, 3) < 0) {
-        perror("listen");
+        perror("A: listen() failed");
         exit(EXIT_FAILURE);
     }
 
     int new_socket;
     if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
                     (socklen_t*)&addrlen))<0) {
-        perror("accept");
+        perror("A: accept() failed");
         exit(EXIT_FAILURE);
     }
 
@@ -64,23 +64,23 @@ void host_B() {
     */
     int sock;
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("\n Socket creation error \n");
-        return -1;
+        perror("B: socket() failed");
+        exit(EXIT_FAILURE);
     }
    
     struct sockaddr_in serv_addr;
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(B_PORT);
+    serv_addr.sin_port = htons(A_PORT);
        
     // Convert IPv4 and IPv6 addresses from text to binary form
     if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
-        printf("\nInvalid address/ Address not supported \n");
-        return -1;
+        perror("B: invalid address");
+        exit(EXIT_FAILURE);
     }
    
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        printf("\nConnection Failed \n");
-        return -1;
+        perror("B: connect() failed");
+        exit(EXIT_FAILURE);
     }
 
     char buffer[1024] = {0};
@@ -96,6 +96,7 @@ void host_B() {
 int main(int argc, char const *argv[]) {
     int B_pid = fork();
     if (B_pid == 0) { // B
+        sleep(1); // Let A start first
         host_B();
     }
     else { // A
