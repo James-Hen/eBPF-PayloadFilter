@@ -2,9 +2,20 @@
 
 A payload filter designed for running experiments that includes dropping packets.
 
-Experiment using the terminal version of WireShark: TShark; tcpdump can also be used.
+Run the experiment using the terminal version of WireShark: TShark; tcpdump can also be used.
 
-Check the loopback interface first using `sudo tshark -D`; assuming we have `lo` as loopback.
+## Prerequisites
+
+I am using the following setup:
+
+```
+Linux 5.13.0-30-generic #33~20.04.1-Ubuntu SMP x86_64 x86_64 x86_64 GNU/Linux
+```
+
+There should be the following packages/utils installed:
+
+ - Clang
+ - tshark
 
 ## Clone and build the filter
 
@@ -17,6 +28,8 @@ make
 
 ## Run the experiment
 
+Check the loopback interface first using `sudo tshark -D`; assuming we have `lo` as loopback. If not so, modify it yourself in `run_experiments.sh`.
+
 Please use `sudo`:
 
 ```bash
@@ -24,6 +37,10 @@ sudo ./run_experiments.sh
 ```
 
 Then you will get a `result.pcapng` file for analysis, also there would be terminal outputs.
+
+Here is a sample result:
+
+![pcapng-result](assets/pcapng-result.png)
 
 ## Hints
 

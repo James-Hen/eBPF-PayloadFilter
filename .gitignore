@@ -4,6 +4,7 @@ build
 # targets
 experiment
 filter.o
+results.pcapng
 
 # ---------- C template ----------
 # Prerequisites
