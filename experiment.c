@@ -32,7 +32,7 @@ void host_A() {
     address.sin_port = htons(A_PORT);
     
     if (bind(server_fd, (struct sockaddr *)&address,
-                                sizeof(address))<0) {
+                                sizeof(address)) < 0) {
         perror("A: bind() failed");
         exit(EXIT_FAILURE);
     }
@@ -43,7 +43,7 @@ void host_A() {
 
     int new_socket;
     if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
-                    (socklen_t*)&addrlen))<0) {
+                    (socklen_t*)&addrlen)) < 0) {
         perror("A: accept() failed");
         exit(EXIT_FAILURE);
     }
@@ -62,9 +62,19 @@ void host_B() {
     /*
         Host B acts like a client
     */
-    int sock;
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    int client_fd;
+    if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("B: socket() failed");
+        exit(EXIT_FAILURE);
+    }
+
+    struct sockaddr_in cli_addr;
+    cli_addr.sin_family = AF_INET;
+    cli_addr.sin_port = htons(B_PORT);
+
+    if (bind(client_fd, (struct sockaddr *)&cli_addr,
+                                sizeof(cli_addr)) < 0) {
+        perror("A: bind() failed");
         exit(EXIT_FAILURE);
     }
    
@@ -73,24 +83,24 @@ void host_B() {
     serv_addr.sin_port = htons(A_PORT);
        
     // Convert IPv4 and IPv6 addresses from text to binary form
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
         perror("B: invalid address");
         exit(EXIT_FAILURE);
     }
    
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+    if (connect(client_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
         perror("B: connect() failed");
         exit(EXIT_FAILURE);
     }
 
     char buffer[1024] = {0};
     // B reads "Hello!" and ACK
-    int valread = read(sock, buffer, 1024);
+    int valread = read(client_fd, buffer, 1024);
     // B sends "Hello!"
     char *hello = "Hello!";
-    send(sock, hello ,strlen(hello) ,0);
+    send(client_fd, hello ,strlen(hello) ,0);
     // B reads "Are you OK?" and ACK
-    valread = read(sock, buffer, 1024);
+    valread = read(client_fd, buffer, 1024);
 }
 
 int main(int argc, char const *argv[]) {

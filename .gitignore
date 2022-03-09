@@ -1,3 +1,11 @@
+# libbpf build dir
+build
+
+# targets
+experiment
+filter.o
+
+# ---------- C template ----------
 # Prerequisites
 *.d
 
